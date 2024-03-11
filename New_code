@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"os/exec"
-	"testing"
-	"strings"
 )
 
-func TestConnectToRouter11(t *testing.T) {
+func main() {
 	// Command to list available containers
 	psCommand := "sudo docker ps"
 
@@ -23,43 +21,36 @@ func TestConnectToRouter11(t *testing.T) {
 	fmt.Println(string(psOutput))
 
 	// Command to log in to bash shell of the container
-	loginCommand := "sudo docker exec clab-frrlab-router1 /bin/bash"
+	loginCommand := "sudo docker exec -it clab-frrlab-router1 /bin/bash"
 
 	// Execute the command to log in to the bash shell of the container
-	loginOutput, err := exec.Command("sh", "-c", loginCommand).CombinedOutput()
+	_, err = exec.Command("sh", "-c", loginCommand).Output()
 	if err != nil {
 		fmt.Println("Error logging in to the container:", err)
 		return
 	}
 
-	// Print the output of the login command
-	fmt.Println("Login output:")
-	fmt.Println(string(loginOutput))
-
 	// Command to log in to vtysh
 	vtyshCommand := "vtysh"
 
 	// Execute the command to log in to vtysh within the container's environment
-	vtyshOutput, err := exec.Command("sh", "-c", loginCommand+" -c '"+vtyshCommand+"'").CombinedOutput()
+	_, err = exec.Command("sh", "-c", loginCommand+" -c '"+vtyshCommand+"'").Output()
 	if err != nil {
 		fmt.Println("Error logging in to vtysh:", err)
 		return
 	}
 
-	// Print the output of the vtysh command
-	fmt.Println("vtysh output:")
-	fmt.Println(string(vtyshOutput))
-
 	// Configuration commands to enter config mode and display OSPF neighbors
 	configCommands := []string{
-		"config",
+		"Config",
 		"router ospf",
 		"do show ip ospf neighbor",
 	}
 
 	// Execute the configuration commands in the vtysh environment
 	for _, cmd := range configCommands {
-		cmdOutput, err := exec.Command("sh", "-c", loginCommand+" -c '"+vtyshCommand+"' -c '"+cmd+"'").CombinedOutput()
+		// Execute each command using vtysh
+		cmdOutput, err := exec.Command("sh", "-c", loginCommand+" -c '"+vtyshCommand+"' -c '"+cmd+"'").Output()
 		if err != nil {
 			fmt.Printf("Error executing command '%s': %v\n", cmd, err)
 			return
