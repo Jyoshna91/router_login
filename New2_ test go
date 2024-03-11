@@ -1,0 +1,66 @@
+func TestConnectToRouter11(t *testing.T) {
+    // Command to list available containers
+    psCommand := "sudo docker ps"
+
+    // Execute the command to list available containers
+    psOutput, err := exec.Command("sh", "-c", psCommand).Output()
+    if err != nil {
+        t.Fatalf("Error executing docker ps command: %v", err)
+    }
+
+    // Print the output of the docker ps command
+    fmt.Println("Available containers:")
+    fmt.Println(string(psOutput))
+
+    // Command to log in to bash shell of the container
+    loginCommand := "sudo docker exec clab-frrlab-router1 /bin/bash"
+
+    // Execute the command to log in to the bash shell of the container
+    loginOutput, err := exec.Command("sh", "-c", loginCommand).CombinedOutput()
+    if err != nil {
+        t.Fatalf("Error logging in to the container: %v", err)
+    }
+
+    // Print the output of the login command
+    fmt.Println("Login output:")
+    fmt.Println(string(loginOutput))
+
+    // Command to log in to vtysh
+    vtyshCommand := "vtysh"
+
+    // Execute the command to log in to vtysh within the container's environment
+    vtyshOutput, err := exec.Command("sh", "-c", loginCommand+" -c '"+vtyshCommand+"'").CombinedOutput()
+    if err != nil {
+        t.Fatalf("Error logging in to vtysh: %v", err)
+    }
+
+    // Print the output of the vtysh command
+    fmt.Println("vtysh output:")
+    fmt.Println(string(vtyshOutput))
+
+    // Command to log in to config mode
+    configCommand := "config"
+
+    // Execute the command to log in to config mode within the container's environment
+    configOutput, err := exec.Command("sh", "-c", loginCommand+" -c '"+vtyshCommand+" -c "+configCommand+"'").CombinedOutput()
+    if err != nil {
+        t.Fatalf("Error logging in to config mode: %v", err)
+    }
+
+    // Print the output of entering config mode
+    fmt.Println("Config mode output:")
+    fmt.Println(string(configOutput))
+
+    // Command to run "do show interface brief" within the configuration mode
+    showInterfaceCommand := "do show interface brief"
+
+    // Execute the command to show interface brief within the configuration mode
+    showInterfaceOutput, err := exec.Command("sh", "-c", loginCommand+" -c '"+vtyshCommand+" -c "+showInterfaceCommand+"'").CombinedOutput()
+    if err != nil {
+        t.Fatalf("Error running 'do show interface brief': %v", err)
+    }
+
+    // Print the output of the "do show interface brief" command
+    fmt.Println("Show Interface Brief output:")
+    fmt.Println(string(showInterfaceOutput))
+}
